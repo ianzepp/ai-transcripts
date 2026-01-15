@@ -1,0 +1,17 @@
+{
+  "name": "claude-transcript",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "claude-transcript": "./dist/claude-transcript"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --compile --outfile dist/claude-transcript",
+    "dev": "bun src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.0.0"
+  }
+}
