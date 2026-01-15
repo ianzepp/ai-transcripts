@@ -6,8 +6,9 @@
     "claude-transcript": "./dist/claude-transcript"
   },
   "scripts": {
-    "build": "bun build src/index.ts --compile --outfile dist/claude-transcript",
+    "build": "bun build src/index.ts --compile --outfile dist/claude-transcript && bun build src/summarize.ts --compile --outfile dist/claude-transcript-summarize",
     "dev": "bun src/index.ts",
+    "summarize": "bun src/summarize.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
