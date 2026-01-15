@@ -11,7 +11,9 @@ cd claude-transcript
 bun install
 bun run build
 
-# Binary is at dist/claude-transcript
+# Binaries at dist/
+#   claude-transcript           - extract transcripts
+#   claude-transcript-summarize - aggregate stats
 ```
 
 ## Usage
@@ -107,6 +109,35 @@ grep -l "authentication" **/*.txt
 # Find what files were read in a session
 grep "^✅ Read:" session.txt
 ```
+
+## Summarize Stats
+
+Aggregate statistics across all transcripts, grouped by project:
+
+```bash
+claude-transcript-summarize ~/transcripts
+```
+
+Output:
+
+```
+Project                          | Sessions |   User (words) |     AI (words) | Bash (✓/✗)     | R/W/E        | Tokens (in/out)   | Time
+--------------------------------------------------------------------------------------------------------------------------------------------
+github/ianzepp/faber             |      478 |   2679 (38.1K) |   7078 (95.6K) | 5910 (5328/582) | 4499/441/3081 |         4.1M/4.4M | 194h 14m
+github/monk/api                  |      623 |   2335 (35.6K) |   6316 (84.4K) | 3490 (3198/292) | 4336/919/3292 |         4.7M/5.1M | 159h 41m
+Workspaces/monk/api              |      491 |   1738 (33.6K) |   5954 (83.0K) | 3356 (3106/250) | 3852/794/2960 |         2.7M/6.1M | 110h 48m
+...
+--------------------------------------------------------------------------------------------------------------------------------------------
+TOTAL                            |     2167 |  8648 (136.1K) | 23491 (321.3K) | 15923 (14502/1421) | 14395/2524/10669 |       13.5M/18.7M | 610h 12m
+```
+
+Columns:
+- **Sessions**: Number of transcript files
+- **User/AI (words)**: Message count and total word count
+- **Bash (✓/✗)**: Total bash commands, successes, failures
+- **R/W/E**: Read/Write/Edit file operations
+- **Tokens**: Input and output token totals
+- **Time**: Sum of session durations
 
 ## Project Structure
 
