@@ -1,22 +1,29 @@
-# claude-transcript
+# ai-transcripts
 
-Extract Claude Code session logs (JSONL) to readable, searchable transcripts.
+Extract AI coding assistant session logs to readable, searchable transcripts.
+
+Supports:
+- **Claude Code** (`~/.claude/projects/`)
+- **OpenAI Codex** (`~/.codex/sessions/`)
 
 ## Installation
 
 ```bash
 # Clone and build
-git clone https://github.com/ianzepp/claude-transcript.git
-cd claude-transcript
+git clone https://github.com/ianzepp/ai-transcripts.git
+cd ai-transcripts
 bun install
 bun run build
 
 # Binaries at dist/
-#   claude-transcript           - extract transcripts
+#   claude-transcript           - extract Claude Code transcripts
+#   codex-transcript            - extract OpenAI Codex transcripts
 #   claude-transcript-summarize - aggregate stats
 ```
 
 ## Usage
+
+### Claude Code
 
 **Stream mode** (stdin/stdout):
 ```bash
@@ -31,7 +38,23 @@ claude-transcript --batch ~/.claude/projects --output ~/transcripts
 Batch mode:
 - Recursively finds all `.jsonl` session files
 - Skips empty files and `.bak` files
-- Organizes output by project: `github/project-name/2025-01-15T10-30-00.txt`
+- Organizes output by date: `2025-01/2025-01-15T10-30-00-claude.txt`
+
+### OpenAI Codex
+
+**Stream mode** (stdin/stdout):
+```bash
+cat ~/.codex/sessions/2025/11/11/rollout-*.jsonl | codex-transcript > session.txt
+```
+
+**Batch mode** (process all sessions):
+```bash
+codex-transcript --batch ~/.codex/sessions --output ~/transcripts
+```
+
+Batch mode:
+- Recursively finds all `rollout-*.jsonl` session files
+- Organizes output by date: `2025-11/2025-11-11T14-12-49-codex.txt`
 
 ## Input Format
 
@@ -141,21 +164,16 @@ Columns:
 
 ## Project Structure
 
-Batch output mirrors your project layout:
+Batch output organized by date with tool suffix:
 
 ```
 transcripts/
-├── github/
-│   ├── my-project/
-│   │   ├── 2025-01-10T08-30-00.txt
-│   │   └── 2025-01-15T10-30-00.txt
-│   └── other-project/
-│       └── ...
-├── Workspaces/
-│   └── ...
-└── private/
-    └── tmp/
-        └── ...
+├── 2025-01/
+│   ├── 2025-01-10T08-30-00-claude.txt
+│   ├── 2025-01-15T10-30-00-claude.txt
+│   └── 2025-01-15T14-22-15-codex.txt
+└── 2025-02/
+    └── ...
 ```
 
 ## What's Excluded

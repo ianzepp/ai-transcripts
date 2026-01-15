@@ -1,6 +1,6 @@
 import { readdir, stat, mkdir } from "node:fs/promises"
-import { join, dirname } from "node:path"
-import { TranscriptParser } from "./parse"
+import { join, dirname, basename } from "node:path"
+import { CodexTranscriptParser } from "./parse"
 
 export interface BatchOptions {
   input: string
@@ -21,8 +21,8 @@ export async function processBatch(options: BatchOptions): Promise<void> {
       continue
     }
 
-    const { folder, timestamp } = await extractDatePath(file)
-    const outPath = join(options.output, folder, `${timestamp}-claude.txt`)
+    const { folder, timestamp } = deriveOutputPath(file)
+    const outPath = join(options.output, folder, `${timestamp}-codex.txt`)
 
     await mkdir(dirname(outPath), { recursive: true })
     await processFile(file, outPath)
@@ -48,7 +48,7 @@ async function findJsonlFiles(dir: string): Promise<string[]> {
       if (entry.isDirectory()) {
         await walk(fullPath)
       }
-      else if (entry.name.endsWith(".jsonl") && !entry.name.includes(".bak")) {
+      else if (entry.name.endsWith(".jsonl") && entry.name.startsWith("rollout-")) {
         results.push(fullPath)
       }
     }
@@ -58,33 +58,28 @@ async function findJsonlFiles(dir: string): Promise<string[]> {
   return results
 }
 
-async function extractDatePath(filePath: string): Promise<{ folder: string; timestamp: string }> {
-  const file = Bun.file(filePath)
-  const text = await file.text()
-  const firstLine = text.split("\n")[0]
+function deriveOutputPath(filePath: string): { folder: string; timestamp: string } {
+  // Codex files are at: sessions/YYYY/MM/DD/rollout-YYYY-MM-DDTHH-MM-SS-uuid.jsonl
+  const filename = basename(filePath)
+  // rollout-2025-11-11T14-12-49-019a7455-c459-76d1-961e-ad0a8695c7ca.jsonl
+  const match = filename.match(/rollout-(\d{4})-(\d{2})-(\d{2})T(\d{2})-(\d{2})-(\d{2})-(.+)\.jsonl/)
 
-  if (!firstLine) {
-    return { folder: "unknown", timestamp: "unknown" }
+  if (match) {
+    const [, year, month, day, hour, minute, second] = match
+    return {
+      folder: `${year}-${month}`,
+      timestamp: `${year}-${month}-${day}T${hour}-${minute}-${second}`,
+    }
   }
 
-  try {
-    const record = JSON.parse(firstLine)
-    const ts = record.timestamp as string
-    // Extract year-month for folder: 2025-12-13T01:06:41.581Z -> 2025-12
-    const match = ts.match(/^(\d{4})-(\d{2})/)
-    const folder = match ? `${match[1]}-${match[2]}` : "unknown"
-    // Convert full timestamp to filename-safe format
-    // 2025-12-13T01:06:41.581Z -> 2025-12-13T01-06-41
-    const timestamp = ts.replace(/:/g, "-").replace(/\.\d+Z$/, "")
-    return { folder, timestamp }
-  }
-  catch {
-    return { folder: "unknown", timestamp: "unknown" }
+  return {
+    folder: "unknown",
+    timestamp: "unknown",
   }
 }
 
 async function processFile(inputPath: string, outputPath: string): Promise<void> {
-  const parser = new TranscriptParser()
+  const parser = new CodexTranscriptParser()
   const file = Bun.file(inputPath)
   const text = await file.text()
   const lines = text.split("\n")
@@ -97,5 +92,8 @@ async function processFile(inputPath: string, outputPath: string): Promise<void>
   // Add summary footer
   output += parser.finalize()
 
-  await Bun.write(outputPath, output)
+  // Only write if there's content
+  if (output.trim()) {
+    await Bun.write(outputPath, output)
+  }
 }

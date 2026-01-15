@@ -1,12 +1,13 @@
 {
-  "name": "claude-transcript",
+  "name": "ai-transcripts",
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "claude-transcript": "./dist/claude-transcript"
+    "claude-transcript": "./dist/claude-transcript",
+    "codex-transcript": "./dist/codex-transcript"
   },
   "scripts": {
-    "build": "bun build src/index.ts --compile --outfile dist/claude-transcript && bun build src/summarize.ts --compile --outfile dist/claude-transcript-summarize",
+    "build": "bun build src/index.ts --compile --outfile dist/claude-transcript && bun build src/summarize.ts --compile --outfile dist/claude-transcript-summarize && bun build src/codex/index.ts --compile --outfile dist/codex-transcript",
     "dev": "bun src/index.ts",
     "summarize": "bun src/summarize.ts",
     "typecheck": "tsc --noEmit"
