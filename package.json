@@ -4,10 +4,11 @@
   "type": "module",
   "bin": {
     "claude-transcript": "./dist/claude-transcript",
-    "codex-transcript": "./dist/codex-transcript"
+    "codex-transcript": "./dist/codex-transcript",
+    "opencode-transcript": "./dist/opencode-transcript"
   },
   "scripts": {
-    "build": "bun build src/index.ts --compile --outfile dist/claude-transcript && bun build src/summarize.ts --compile --outfile dist/claude-transcript-summarize && bun build src/codex/index.ts --compile --outfile dist/codex-transcript",
+    "build": "bun build src/index.ts --compile --outfile dist/claude-transcript && bun build src/summarize.ts --compile --outfile dist/claude-transcript-summarize && bun build src/codex/index.ts --compile --outfile dist/codex-transcript && bun build src/opencode/index.ts --compile --outfile dist/opencode-transcript",
     "dev": "bun src/index.ts",
     "summarize": "bun src/summarize.ts",
     "typecheck": "tsc --noEmit"

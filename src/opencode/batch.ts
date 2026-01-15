@@ -1,0 +1,80 @@
+import { readdir, mkdir } from "node:fs/promises"
+import { join, dirname } from "node:path"
+import { loadSession, formatSession } from "./parse"
+
+export interface BatchOptions {
+  input: string
+  output: string
+}
+
+export async function processBatch(options: BatchOptions): Promise<void> {
+  const storageDir = options.input
+  const sessionIds = await findAllSessions(storageDir)
+  console.error(`Found ${sessionIds.length} sessions`)
+
+  let processed = 0
+  let skipped = 0
+
+  for (const sessionId of sessionIds) {
+    const data = await loadSession(storageDir, sessionId)
+    if (!data) {
+      skipped++
+      continue
+    }
+
+    const { folder, timestamp } = deriveDatePath(data.session.time.created)
+    const outPath = join(options.output, folder, `${timestamp}-opencode.txt`)
+
+    await mkdir(dirname(outPath), { recursive: true })
+
+    const content = formatSession(data)
+    if (content.trim()) {
+      await Bun.write(outPath, content)
+      processed++
+    }
+    else {
+      skipped++
+    }
+
+    if (processed % 100 === 0 && processed > 0) {
+      console.error(`Processed ${processed} sessions...`)
+    }
+  }
+
+  console.error(`Done: ${processed} processed, ${skipped} skipped`)
+}
+
+async function findAllSessions(storageDir: string): Promise<string[]> {
+  const sessionIds = new Set<string>()
+
+  // Get sessions from message directories (most reliable)
+  const messageDir = join(storageDir, "message")
+  try {
+    const dirs = await readdir(messageDir)
+    for (const dir of dirs) {
+      if (dir.startsWith("ses_")) {
+        sessionIds.add(dir)
+      }
+    }
+  }
+  catch {
+    // Ignore errors
+  }
+
+  return Array.from(sessionIds)
+}
+
+function deriveDatePath(timestamp: number): { folder: string; timestamp: string } {
+  const date = new Date(timestamp)
+  const year = date.getUTCFullYear()
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0")
+  const day = String(date.getUTCDate()).padStart(2, "0")
+  const hour = String(date.getUTCHours()).padStart(2, "0")
+  const minute = String(date.getUTCMinutes()).padStart(2, "0")
+  const second = String(date.getUTCSeconds()).padStart(2, "0")
+
+  return {
+    folder: `${year}-${month}`,
+    timestamp: `${year}-${month}-${day}T${hour}-${minute}-${second}`,
+  }
+}

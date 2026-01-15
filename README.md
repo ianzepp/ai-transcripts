@@ -5,6 +5,7 @@ Extract AI coding assistant session logs to readable, searchable transcripts.
 Supports:
 - **Claude Code** (`~/.claude/projects/`)
 - **OpenAI Codex** (`~/.codex/sessions/`)
+- **OpenCode** (`~/.local/share/opencode/storage/`)
 
 ## Installation
 
@@ -18,6 +19,7 @@ bun run build
 # Binaries at dist/
 #   claude-transcript           - extract Claude Code transcripts
 #   codex-transcript            - extract OpenAI Codex transcripts
+#   opencode-transcript         - extract OpenCode transcripts
 #   claude-transcript-summarize - aggregate stats
 ```
 
@@ -55,6 +57,18 @@ codex-transcript --batch ~/.codex/sessions --output ~/transcripts
 Batch mode:
 - Recursively finds all `rollout-*.jsonl` session files
 - Organizes output by date: `2025-11/2025-11-11T14-12-49-codex.txt`
+
+### OpenCode
+
+**Batch mode only** (data is fragmented across multiple files):
+```bash
+opencode-transcript --batch ~/.local/share/opencode/storage --output ~/transcripts
+```
+
+Batch mode:
+- Loads session metadata, messages, and parts from separate directories
+- Reconstructs conversations by joining related files
+- Organizes output by date: `2025-11/2025-11-11T14-12-49-opencode.txt`
 
 ## Input Format
 
@@ -170,8 +184,8 @@ Batch output organized by date with tool suffix:
 transcripts/
 ├── 2025-01/
 │   ├── 2025-01-10T08-30-00-claude.txt
-│   ├── 2025-01-15T10-30-00-claude.txt
-│   └── 2025-01-15T14-22-15-codex.txt
+│   ├── 2025-01-15T10-30-00-codex.txt
+│   └── 2025-01-15T14-22-15-opencode.txt
 └── 2025-02/
     └── ...
 ```
