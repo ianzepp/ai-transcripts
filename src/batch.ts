@@ -23,7 +23,7 @@ export async function processBatch(options: BatchOptions): Promise<void> {
 
     const slug = deriveProjectSlug(file, options.input)
     const timestamp = await extractTimestamp(file)
-    const outPath = join(options.output, slug, `${timestamp}.log`)
+    const outPath = join(options.output, slug, `${timestamp}.txt`)
 
     await mkdir(dirname(outPath), { recursive: true })
     await processFile(file, outPath)
