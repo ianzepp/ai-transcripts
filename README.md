@@ -149,23 +149,25 @@ grep "^✅ Read:" session.txt
 
 ## Summarize Stats
 
-Aggregate statistics across all transcripts, grouped by project:
+Aggregate statistics across all transcripts, grouped by month:
 
 ```bash
 claude-transcript-summarize ~/transcripts
+
+# pipe to glow for pretty rendering
+claude-transcript-summarize ~/transcripts | glow
 ```
 
-Output:
+Output (markdown table format):
 
-```
-Project                          | Sessions |   User (words) |     AI (words) | Bash (✓/✗)     | R/W/E        | Tokens (in/out)   | Time
---------------------------------------------------------------------------------------------------------------------------------------------
-github/ianzepp/faber             |      478 |   2679 (38.1K) |   7078 (95.6K) | 5910 (5328/582) | 4499/441/3081 |         4.1M/4.4M | 194h 14m
-github/monk/api                  |      623 |   2335 (35.6K) |   6316 (84.4K) | 3490 (3198/292) | 4336/919/3292 |         4.7M/5.1M | 159h 41m
-Workspaces/monk/api              |      491 |   1738 (33.6K) |   5954 (83.0K) | 3356 (3106/250) | 3852/794/2960 |         2.7M/6.1M | 110h 48m
-...
---------------------------------------------------------------------------------------------------------------------------------------------
-TOTAL                            |     2167 |  8648 (136.1K) | 23491 (321.3K) | 15923 (14502/1421) | 14395/2524/10669 |       13.5M/18.7M | 610h 12m
+```markdown
+| Month | Sessions | User (words) | AI (words) | Bash (✓/✗) | R/W/E | Tokens (in/out) | Time |
+|---|---|---|---|---|---|---|---|
+| 2025-09 | 22 | 297 (7.8K) | 328 (5.1K) | 0 (0/0) | 0/0/0 | 19.4M/402.3K | 171h 6m |
+| 2025-10 | 14 | 61 (2.0K) | 111 (1.6K) | 0 (0/0) | 0/0/0 | 4.9M/73.3K | 7h 31m |
+| 2025-11 | 688 | 2731 (59.1K) | 10733 (170.1K) | 3253 (3020/233) | 3763/706/2707 | 391.4M/8.4M | 198h 31m |
+|---|---|---|---|---|---|---|---|
+| **TOTAL** | 2829 | 13053 (214.3K) | 39682 (588.6K) | 16303 (14865/1438) | 14476/2499/10756 | 468.1M/28.4M | 1106h 26m |
 ```
 
 Columns:
