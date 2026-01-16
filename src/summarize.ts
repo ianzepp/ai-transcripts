@@ -192,16 +192,12 @@ async function main(): Promise<void> {
     parseFile(content, projects.get(projectKey)!)
   }
 
-  // Sort by total messages descending
-  const sorted = [...projects.entries()].sort((a, b) => {
-    const totalA = a[1].userMessages + a[1].assistantMessages
-    const totalB = b[1].userMessages + b[1].assistantMessages
-    return totalB - totalA
-  })
+  // Sort by project/month name ascending
+  const sorted = [...projects.entries()].sort((a, b) => a[0].localeCompare(b[0]))
 
   // Header
-  console.log("Project                          | Sessions |   User (words) |     AI (words) | Bash (✓/✗)     | R/W/E        | Tokens (in/out)   | Time")
-  console.log("-".repeat(140))
+  console.log("| Month | Sessions | User (words) | AI (words) | Bash (✓/✗) | R/W/E | Tokens (in/out) | Time |")
+  console.log("|---|---|---|---|---|---|---|---|")
 
   // Totals
   const totals = emptyStats()
@@ -216,7 +212,7 @@ async function main(): Promise<void> {
     const tokens = `${formatNumber(stats.inputTokens)}/${formatNumber(stats.outputTokens)}`.padStart(17)
     const time = formatDuration(stats.totalDurationMinutes).padStart(8)
 
-    console.log(`${projectName} | ${sessions} | ${user} | ${ai} | ${bash} | ${rwe} | ${tokens} | ${time}`)
+    console.log(`| ${projectName.trim()} | ${sessions.trim()} | ${user.trim()} | ${ai.trim()} | ${bash.trim()} | ${rwe.trim()} | ${tokens.trim()} | ${time.trim()} |`)
 
     // Accumulate totals
     totals.sessions += stats.sessions
@@ -236,17 +232,17 @@ async function main(): Promise<void> {
   }
 
   // Print totals
-  console.log("-".repeat(140))
-  const projectName = "TOTAL".padEnd(32)
-  const sessions = String(totals.sessions).padStart(8)
-  const user = `${totals.userMessages} (${formatNumber(totals.userWords)})`.padStart(14)
-  const ai = `${totals.assistantMessages} (${formatNumber(totals.assistantWords)})`.padStart(14)
-  const bash = `${totals.bashTotal} (${totals.bashSuccess}/${totals.bashFailed})`.padStart(14)
-  const rwe = `${totals.reads}/${totals.writes}/${totals.edits}`.padStart(12)
-  const tokens = `${formatNumber(totals.inputTokens)}/${formatNumber(totals.outputTokens)}`.padStart(17)
-  const time = formatDuration(totals.totalDurationMinutes).padStart(8)
+  console.log("|---|---|---|---|---|---|---|---|")
+  const tProjectName = "**TOTAL**"
+  const tSessions = String(totals.sessions)
+  const tUser = `${totals.userMessages} (${formatNumber(totals.userWords)})`
+  const tAi = `${totals.assistantMessages} (${formatNumber(totals.assistantWords)})`
+  const tBash = `${totals.bashTotal} (${totals.bashSuccess}/${totals.bashFailed})`
+  const tRwe = `${totals.reads}/${totals.writes}/${totals.edits}`
+  const tTokens = `${formatNumber(totals.inputTokens)}/${formatNumber(totals.outputTokens)}`
+  const tTime = formatDuration(totals.totalDurationMinutes)
 
-  console.log(`${projectName} | ${sessions} | ${user} | ${ai} | ${bash} | ${rwe} | ${tokens} | ${time}`)
+  console.log(`| ${tProjectName} | ${tSessions} | ${tUser} | ${tAi} | ${tBash} | ${tRwe} | ${tTokens} | ${tTime} |`)
 }
 
 main().catch((err) => {
