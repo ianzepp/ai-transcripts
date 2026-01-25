@@ -195,7 +195,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     tools: [
       {
         name: "search_transcripts",
-        description: "Search past conversation transcripts for relevant context. Use this to find previous discussions about a topic, recall past decisions, or understand history with a project.",
+        description: "Search past conversation transcripts for relevant context. Use this proactively when: (1) Starting work on a project - check for prior discussions about this codebase, (2) Encountering unfamiliar patterns or decisions - find the rationale, (3) The user references something discussed previously, (4) Exploring a codebase to understand its history. This is the user's long-term memory across all AI conversations. Keywords are OR-matched.",
         inputSchema: {
           type: "object",
           properties: {
