@@ -8,10 +8,14 @@
     "codex": "bun src/codex/index.ts",
     "opencode": "bun src/opencode/index.ts",
     "summarize": "bun src/summarize.ts",
+    "mcp": "bun src/mcp.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.3"
   }
 }

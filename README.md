@@ -197,6 +197,51 @@ transcripts/
     └── ...
 ```
 
+## MCP Server (Long-term Memory)
+
+An MCP server exposes transcripts as searchable context for Claude. This allows Claude to proactively search past conversations during exploration.
+
+### Setup
+
+Add to `~/.claude/settings.json`:
+
+```json
+{
+  "mcpServers": {
+    "transcripts": {
+      "command": "bun",
+      "args": ["run", "mcp"],
+      "cwd": "/path/to/ai-transcripts",
+      "env": {
+        "TRANSCRIPTS_DIR": "/path/to/your/transcripts"
+      }
+    }
+  }
+}
+```
+
+Set `TRANSCRIPTS_DIR` to your transcripts directory (defaults to `~/transcripts`).
+
+### Tool: search_transcripts
+
+```typescript
+search_transcripts({
+  keywords: ["authentication", "JWT"],  // Required: terms to search (OR matched)
+  days: 90,                              // Optional: how far back (default: 90)
+  limit: 20,                             // Optional: max results (default: 20)
+  context_lines: 2,                      // Optional: lines around match (default: 2)
+  message_type: "all"                    // Optional: "user", "assistant", or "all"
+})
+```
+
+Returns matches with date, file path, and surrounding context:
+
+```
+2025-01-15 /path/to/2025-01-15T10-30-00-claude.txt
+  👤 How should we handle JWT refresh tokens?
+  🤖 For refresh tokens, the standard approach is...
+```
+
 ## What's Excluded
 
 - **Thinking blocks**: Claude's internal reasoning (verbose, not useful for archive)
