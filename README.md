@@ -203,7 +203,7 @@ An MCP server exposes transcripts as searchable context for Claude. This allows 
 
 ### Setup
 
-Add to `~/.claude/settings.json`:
+Add to `~/.claude.json` (create if needed):
 
 ```json
 {
@@ -221,6 +221,8 @@ Add to `~/.claude/settings.json`:
 ```
 
 Set `TRANSCRIPTS_DIR` to your transcripts directory (defaults to `~/transcripts`).
+
+Restart Claude Code to load the server.
 
 ### Tool: search_transcripts
 
