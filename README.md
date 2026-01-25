@@ -10,31 +10,36 @@ Supports:
 ## Installation
 
 ```bash
-# Clone and build
 git clone https://github.com/ianzepp/ai-transcripts.git
 cd ai-transcripts
 bun install
-bun run build
-
-# Binaries at dist/
-#   claude-transcript           - extract Claude Code transcripts
-#   codex-transcript            - extract OpenAI Codex transcripts
-#   opencode-transcript         - extract OpenCode transcripts
-#   claude-transcript-summarize - aggregate stats
 ```
 
 ## Usage
+
+### All Sources
+
+Process all AI assistant sessions at once:
+
+```bash
+bun run all -- --output ~/transcripts
+```
+
+Automatically detects and processes any of:
+- `~/.claude/projects` (Claude Code)
+- `~/.codex/sessions` (OpenAI Codex)
+- `~/.local/share/opencode/storage` (OpenCode)
 
 ### Claude Code
 
 **Stream mode** (stdin/stdout):
 ```bash
-cat ~/.claude/projects/-Users-me-github/abc123.jsonl | claude-transcript > session.txt
+cat ~/.claude/projects/-Users-me-github/abc123.jsonl | bun run claude > session.txt
 ```
 
 **Batch mode** (process all sessions):
 ```bash
-claude-transcript --batch ~/.claude/projects --output ~/transcripts
+bun run claude -- --batch ~/.claude/projects --output ~/transcripts
 ```
 
 Batch mode:
@@ -46,12 +51,12 @@ Batch mode:
 
 **Stream mode** (stdin/stdout):
 ```bash
-cat ~/.codex/sessions/2025/11/11/rollout-*.jsonl | codex-transcript > session.txt
+cat ~/.codex/sessions/2025/11/11/rollout-*.jsonl | bun run codex > session.txt
 ```
 
 **Batch mode** (process all sessions):
 ```bash
-codex-transcript --batch ~/.codex/sessions --output ~/transcripts
+bun run codex -- --batch ~/.codex/sessions --output ~/transcripts
 ```
 
 Batch mode:
@@ -62,7 +67,7 @@ Batch mode:
 
 **Batch mode only** (data is fragmented across multiple files):
 ```bash
-opencode-transcript --batch ~/.local/share/opencode/storage --output ~/transcripts
+bun run opencode -- --batch ~/.local/share/opencode/storage --output ~/transcripts
 ```
 
 Batch mode:
@@ -152,10 +157,10 @@ grep "^✅ Read:" session.txt
 Aggregate statistics across all transcripts, grouped by month:
 
 ```bash
-claude-transcript-summarize ~/transcripts
+bun run summarize ~/transcripts
 
 # pipe to glow for pretty rendering
-claude-transcript-summarize ~/transcripts | glow
+bun run summarize ~/transcripts | glow
 ```
 
 Output (markdown table format):

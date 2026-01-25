@@ -69,11 +69,11 @@ async function streamMode(): Promise<void> {
 
 function printUsage(): void {
   console.log(`
-codex-transcript - Convert OpenAI Codex session logs to readable transcripts
+Convert OpenAI Codex session logs to readable transcripts
 
 Usage:
-  cat session.jsonl | codex-transcript          Stream mode (stdin -> stdout)
-  codex-transcript -b <input> -o <output>       Batch mode
+  cat session.jsonl | bun run codex             Stream mode (stdin -> stdout)
+  bun run codex -- -b <input> -o <output>       Batch mode
 
 Options:
   -b, --batch       Enable batch mode (process directory tree)
@@ -82,10 +82,10 @@ Options:
 
 Examples:
   # Convert a single session
-  cat ~/.codex/sessions/2025/11/11/rollout-*.jsonl | codex-transcript > session.txt
+  cat ~/.codex/sessions/2025/11/11/rollout-*.jsonl | bun run codex > session.txt
 
   # Process all sessions
-  codex-transcript --batch ~/.codex/sessions --output ~/archive/transcripts
+  bun run codex -- --batch ~/.codex/sessions --output ~/transcripts
 `)
 }
 

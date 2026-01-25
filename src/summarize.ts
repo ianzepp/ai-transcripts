@@ -174,7 +174,7 @@ function formatDuration(minutes: number): string {
 async function main(): Promise<void> {
   const inputDir = process.argv[2]
   if (!inputDir) {
-    console.error("Usage: claude-transcript summarize <transcripts-dir>")
+    console.error("Usage: bun run summarize <transcripts-dir>")
     process.exit(1)
   }
 

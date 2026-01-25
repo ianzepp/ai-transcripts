@@ -2,14 +2,11 @@
   "name": "ai-transcripts",
   "version": "0.1.0",
   "type": "module",
-  "bin": {
-    "claude-transcript": "./dist/claude-transcript",
-    "codex-transcript": "./dist/codex-transcript",
-    "opencode-transcript": "./dist/opencode-transcript"
-  },
   "scripts": {
-    "build": "bun build src/index.ts --compile --outfile dist/claude-transcript && bun build src/summarize.ts --compile --outfile dist/claude-transcript-summarize && bun build src/codex/index.ts --compile --outfile dist/codex-transcript && bun build src/opencode/index.ts --compile --outfile dist/opencode-transcript",
-    "dev": "bun src/index.ts",
+    "all": "bun src/all.ts",
+    "claude": "bun src/index.ts",
+    "codex": "bun src/codex/index.ts",
+    "opencode": "bun src/opencode/index.ts",
     "summarize": "bun src/summarize.ts",
     "typecheck": "tsc --noEmit"
   },

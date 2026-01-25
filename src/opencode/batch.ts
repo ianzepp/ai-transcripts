@@ -10,12 +10,23 @@ export interface BatchOptions {
 export async function processBatch(options: BatchOptions): Promise<void> {
   const storageDir = options.input
   const sessionIds = await findAllSessions(storageDir)
-  console.error(`Found ${sessionIds.length} sessions`)
+  const total = sessionIds.length
+  const isTTY = process.stderr.isTTY
+  console.error(`Found ${total} sessions`)
 
   let processed = 0
   let skipped = 0
 
   for (const sessionId of sessionIds) {
+    const current = processed + skipped + 1
+
+    if (isTTY) {
+      process.stderr.write(`\r  Processing ${current}/${total}...`)
+    }
+    else if (current === 1 || current % 500 === 0) {
+      console.error(`  Processing ${current}/${total}...`)
+    }
+
     const data = await loadSession(storageDir, sessionId)
     if (!data) {
       skipped++
@@ -35,13 +46,12 @@ export async function processBatch(options: BatchOptions): Promise<void> {
     else {
       skipped++
     }
-
-    if (processed % 100 === 0 && processed > 0) {
-      console.error(`Processed ${processed} sessions...`)
-    }
   }
 
-  console.error(`Done: ${processed} processed, ${skipped} skipped`)
+  if (isTTY) {
+    process.stderr.write("\r" + " ".repeat(40) + "\r")
+  }
+  console.error(`  Done: ${processed} processed, ${skipped} skipped`)
 }
 
 async function findAllSessions(storageDir: string): Promise<string[]> {

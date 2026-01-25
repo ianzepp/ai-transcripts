@@ -9,12 +9,23 @@ export interface BatchOptions {
 
 export async function processBatch(options: BatchOptions): Promise<void> {
   const files = await findJsonlFiles(options.input)
-  console.error(`Found ${files.length} session files`)
+  const total = files.length
+  const isTTY = process.stderr.isTTY
+  console.error(`Found ${total} session files`)
 
   let processed = 0
   let skipped = 0
 
   for (const file of files) {
+    const current = processed + skipped + 1
+
+    if (isTTY) {
+      process.stderr.write(`\r  Processing ${current}/${total}...`)
+    }
+    else if (current === 1 || current % 500 === 0) {
+      console.error(`  Processing ${current}/${total}...`)
+    }
+
     const fileInfo = await stat(file)
     if (fileInfo.size === 0) {
       skipped++
@@ -27,13 +38,12 @@ export async function processBatch(options: BatchOptions): Promise<void> {
     await mkdir(dirname(outPath), { recursive: true })
     await processFile(file, outPath)
     processed++
-
-    if (processed % 100 === 0) {
-      console.error(`Processed ${processed} files...`)
-    }
   }
 
-  console.error(`Done: ${processed} processed, ${skipped} skipped (empty)`)
+  if (isTTY) {
+    process.stderr.write("\r" + " ".repeat(40) + "\r")
+  }
+  console.error(`  Done: ${processed} processed, ${skipped} skipped (empty)`)
 }
 
 async function findJsonlFiles(dir: string): Promise<string[]> {

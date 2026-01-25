@@ -37,10 +37,10 @@ async function main(): Promise<void> {
 
 function printUsage(): void {
   console.log(`
-opencode-transcript - Convert OpenCode session data to readable transcripts
+Convert OpenCode session data to readable transcripts
 
 Usage:
-  opencode-transcript -b <input> -o <output>    Batch mode (required)
+  bun run opencode -- -b <input> -o <output>    Batch mode (required)
 
 Options:
   -b, --batch       Enable batch mode (process all sessions)
@@ -49,7 +49,7 @@ Options:
 
 Examples:
   # Process all sessions
-  opencode-transcript --batch ~/.local/share/opencode/storage --output ~/transcripts
+  bun run opencode -- --batch ~/.local/share/opencode/storage --output ~/transcripts
 
 Note: Stream mode is not supported because OpenCode stores data across
 multiple files (sessions, messages, parts) that must be joined.

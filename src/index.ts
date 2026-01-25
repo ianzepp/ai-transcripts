@@ -73,11 +73,11 @@ async function streamMode(): Promise<void> {
 
 function printUsage(): void {
   console.log(`
-claude-transcript - Convert Claude Code session logs to readable transcripts
+Convert Claude Code session logs to readable transcripts
 
 Usage:
-  cat session.jsonl | claude-transcript          Stream mode (stdin -> stdout)
-  claude-transcript -b <input> -o <output>       Batch mode
+  cat session.jsonl | bun run claude             Stream mode (stdin -> stdout)
+  bun run claude -- -b <input> -o <output>       Batch mode
 
 Options:
   -b, --batch       Enable batch mode (process directory tree)
@@ -86,10 +86,10 @@ Options:
 
 Examples:
   # Convert a single session
-  cat ~/.claude/projects/-Users-me-github/abc123.jsonl | claude-transcript > session.log
+  cat ~/.claude/projects/-Users-me-github/abc123.jsonl | bun run claude > session.txt
 
   # Process all sessions
-  claude-transcript --batch ~/.claude/projects --output ~/archive/transcripts
+  bun run claude -- --batch ~/.claude/projects --output ~/transcripts
 `)
 }
 
