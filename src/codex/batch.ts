@@ -5,6 +5,7 @@ import { CodexTranscriptParser } from "./parse"
 export interface BatchOptions {
   input: string
   output: string
+  force?: boolean
 }
 
 export async function processBatch(options: BatchOptions): Promise<void> {
@@ -15,9 +16,10 @@ export async function processBatch(options: BatchOptions): Promise<void> {
 
   let processed = 0
   let skipped = 0
+  let upToDate = 0
 
   for (const file of files) {
-    const current = processed + skipped + 1
+    const current = processed + skipped + upToDate + 1
 
     if (isTTY) {
       process.stderr.write(`\r  Processing ${current}/${total}...`)
@@ -35,6 +37,11 @@ export async function processBatch(options: BatchOptions): Promise<void> {
     const { folder, timestamp } = deriveOutputPath(file)
     const outPath = join(options.output, folder, `${timestamp}-codex.txt`)
 
+    if (!options.force && await isUpToDate(file, outPath)) {
+      upToDate++
+      continue
+    }
+
     await mkdir(dirname(outPath), { recursive: true })
     await processFile(file, outPath)
     processed++
@@ -43,7 +50,7 @@ export async function processBatch(options: BatchOptions): Promise<void> {
   if (isTTY) {
     process.stderr.write("\r" + " ".repeat(40) + "\r")
   }
-  console.error(`  Done: ${processed} processed, ${skipped} skipped (empty)`)
+  console.error(`  Done: ${processed} processed, ${skipped} skipped (empty), ${upToDate} up-to-date`)
 }
 
 async function findJsonlFiles(dir: string): Promise<string[]> {
@@ -85,6 +92,16 @@ function deriveOutputPath(filePath: string): { folder: string; timestamp: string
   return {
     folder: "unknown",
     timestamp: "unknown",
+  }
+}
+
+async function isUpToDate(inputPath: string, outputPath: string): Promise<boolean> {
+  try {
+    const [inStat, outStat] = await Promise.all([stat(inputPath), stat(outputPath)])
+    return outStat.mtimeMs >= inStat.mtimeMs
+  }
+  catch {
+    return false
   }
 }
 

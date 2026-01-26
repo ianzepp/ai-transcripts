@@ -1,10 +1,11 @@
-import { readdir, mkdir } from "node:fs/promises"
+import { readdir, mkdir, stat } from "node:fs/promises"
 import { join, dirname } from "node:path"
 import { loadSession, formatSession } from "./parse"
 
 export interface BatchOptions {
   input: string
   output: string
+  force?: boolean
 }
 
 export async function processBatch(options: BatchOptions): Promise<void> {
@@ -16,9 +17,10 @@ export async function processBatch(options: BatchOptions): Promise<void> {
 
   let processed = 0
   let skipped = 0
+  let upToDate = 0
 
   for (const sessionId of sessionIds) {
-    const current = processed + skipped + 1
+    const current = processed + skipped + upToDate + 1
 
     if (isTTY) {
       process.stderr.write(`\r  Processing ${current}/${total}...`)
@@ -36,6 +38,12 @@ export async function processBatch(options: BatchOptions): Promise<void> {
     const { folder, timestamp } = deriveDatePath(data.session.time.created)
     const outPath = join(options.output, folder, `${timestamp}-opencode.txt`)
 
+    const messageDir = join(storageDir, "message", sessionId)
+    if (!options.force && await isUpToDate(messageDir, outPath)) {
+      upToDate++
+      continue
+    }
+
     await mkdir(dirname(outPath), { recursive: true })
 
     const content = formatSession(data)
@@ -51,7 +59,7 @@ export async function processBatch(options: BatchOptions): Promise<void> {
   if (isTTY) {
     process.stderr.write("\r" + " ".repeat(40) + "\r")
   }
-  console.error(`  Done: ${processed} processed, ${skipped} skipped`)
+  console.error(`  Done: ${processed} processed, ${skipped} skipped, ${upToDate} up-to-date`)
 }
 
 async function findAllSessions(storageDir: string): Promise<string[]> {
@@ -72,6 +80,16 @@ async function findAllSessions(storageDir: string): Promise<string[]> {
   }
 
   return Array.from(sessionIds)
+}
+
+async function isUpToDate(inputPath: string, outputPath: string): Promise<boolean> {
+  try {
+    const [inStat, outStat] = await Promise.all([stat(inputPath), stat(outputPath)])
+    return outStat.mtimeMs >= inStat.mtimeMs
+  }
+  catch {
+    return false
+  }
 }
 
 function deriveDatePath(timestamp: number): { folder: string; timestamp: string } {

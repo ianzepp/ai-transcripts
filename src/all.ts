@@ -15,6 +15,8 @@ async function main(): Promise<void> {
   const { values } = parseArgs({
     options: {
       output: { type: "string", short: "o" },
+      force: { type: "boolean", short: "f", default: false },
+      commit: { type: "boolean", short: "c", default: false },
       help: { type: "boolean", short: "h", default: false },
     },
     allowPositionals: false,
@@ -32,6 +34,7 @@ async function main(): Promise<void> {
   }
 
   const output = values.output
+  const force = values.force ?? false
 
   // Check which sources exist
   const sources: { name: string; path: string; processor: typeof processClaudeBatch }[] = []
@@ -57,10 +60,50 @@ async function main(): Promise<void> {
 
   for (const source of sources) {
     console.error(`\nProcessing ${source.name} (${source.path})...`)
-    await source.processor({ input: source.path, output })
+    await source.processor({ input: source.path, output, force })
+  }
+
+  if (values.commit) {
+    await commitChanges(output)
   }
 
   console.error("\nAll done.")
+}
+
+async function commitChanges(dir: string): Promise<void> {
+  const { spawnSync } = await import("node:child_process")
+
+  // Check if it's a git repo
+  const gitCheck = spawnSync("git", ["rev-parse", "--git-dir"], { cwd: dir })
+  if (gitCheck.status !== 0) {
+    console.error("\n--commit: not a git repository, skipping")
+    return
+  }
+
+  // Check for changes
+  const status = spawnSync("git", ["status", "--porcelain"], { cwd: dir })
+  const changes = status.stdout.toString().trim()
+  if (!changes) {
+    console.error("\n--commit: no changes to commit")
+    return
+  }
+
+  // Stage and commit
+  const add = spawnSync("git", ["add", "-A"], { cwd: dir })
+  if (add.status !== 0) {
+    console.error("\n--commit: git add failed")
+    return
+  }
+
+  const date = new Date().toISOString().split("T")[0]
+  const commit = spawnSync("git", ["commit", "-m", `Transcripts update ${date}`], { cwd: dir })
+  if (commit.status !== 0) {
+    console.error("\n--commit: git commit failed")
+    console.error(commit.stderr.toString())
+    return
+  }
+
+  console.error("\n--commit: committed changes")
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -78,10 +121,12 @@ function printUsage(): void {
 Process all AI assistant session logs at once
 
 Usage:
-  bun run all -- -o <output>
+  bun run all -- -o <output> [-f]
 
 Options:
   -o, --output      Output directory (required)
+  -f, --force       Regenerate all files (default: skip if output is newer)
+  -c, --commit      Commit changes to git (if output is a repo)
   -h, --help        Show this help
 
 Sources checked:
